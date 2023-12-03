@@ -54,7 +54,7 @@ object Day3 extends AdventOfCode {
     }
 
     gears.values
-      .filter(l => l.length == 2)
+      .filter(_.length == 2)
       .map(l => BigInt(l.head) * BigInt(l.last))
       .sum
       .toString()
