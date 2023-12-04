@@ -9,7 +9,8 @@ import scala.util.Using
 def main(): Unit = {
   //  runDay(Day1)
   //  runDay(Day2)
-  runDay(Day3)
+  //  runDay(Day3)
+  runDay(Day4)
 }
 
 def runDay(day: AdventOfCode): Unit = {
