@@ -24,11 +24,11 @@ object Day4 extends AdventOfCode {
     val cards = Array.fill(input.length)(1)
 
     for ((line, idx) <- input.zipWithIndex) {
-      val l = numberPattern.findAllMatchIn(line)
+      val numbers = numberPattern.findAllMatchIn(line)
         .map(x => x.toString().toInt)
         .toList
 
-      val commonNumbers = l.slice(1, 11).intersect(l.slice(11, l.size))
+      val commonNumbers = numbers.slice(1, 11).intersect(numbers.slice(11, numbers.size))
 
       for (i <- 1 to commonNumbers.length) {
         if (idx + i < cards.length) {
