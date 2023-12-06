@@ -1,7 +1,6 @@
 package se.jakub
 
 import days.*
-
 import scala.io.Source
 import scala.util.Using
 
@@ -10,7 +9,8 @@ def main(): Unit = {
   //  runDay(Day1)
   //  runDay(Day2)
   //  runDay(Day3)
-  runDay(Day4)
+  //  runDay(Day4)
+  runDay(Day5)
 }
 
 def runDay(day: AdventOfCode): Unit = {
