@@ -20,9 +20,9 @@ object Day3 extends AdventOfCode {
         .foreach { case (number, startIdx, endIdx) =>
           val hasAdjacentSymbol = (startIdx until endIdx)
             .flatMap(x => adjacentPositions(x, rowIndex))
-            .filter { case (xPos, yPos) => isInsideBounds(input, xPos, yPos) && !input(yPos).charAt(xPos).isDigit }
+            .filter { (xPos, yPos) => isInsideBounds(input, xPos, yPos) && !input(yPos).charAt(xPos).isDigit }
             .distinct
-            .exists { case (xPos, yPos) => !input(yPos).charAt(xPos).equals('.') }
+            .exists { (xPos, yPos) => !input(yPos).charAt(xPos).equals('.') }
           if (hasAdjacentSymbol) {
             answer += number.toInt
           }
@@ -33,23 +33,20 @@ object Day3 extends AdventOfCode {
   }
 
   def part2(input: List[String]): String = {
-    val gears = mutable.HashMap.empty[(Int, Int), ListBuffer[Int]]
-
-    for ((line, rowIndex) <- input.zipWithIndex) {
-      starPattern.findAllMatchIn(line).foreach { m =>
-        gears += ((m.start, rowIndex) -> mutable.ListBuffer())
-      }
-    }
+    val gears = input.zipWithIndex.flatMap { (line, rowIndex) =>
+      starPattern.findAllMatchIn(line).map { m => ((m.start, rowIndex), mutable.ListBuffer[Int]()) }
+    }.toMap
 
     for ((line, rowIndex) <- input.zipWithIndex) {
       numberPattern.findAllMatchIn(line)
         .map(m => (line.substring(m.start, m.end), m.start, m.end))
-        .foreach { case (number, startIdx, endIdx) => (startIdx until endIdx)
-          .flatMap(x => adjacentPositions(x, rowIndex))
-          .filter { case (xPos, yPos) => isInsideBounds(input, xPos, yPos) && !input(yPos).charAt(xPos).isDigit }
-          .filter { case (xPos, yPos) => input(yPos).charAt(xPos).equals('*') }
-          .distinct
-          .foreach { case (xPos, yPos) => gears((xPos, yPos)) += number.toInt }
+        .foreach { (number, startIdx, endIdx) =>
+          (startIdx until endIdx)
+            .flatMap(x => adjacentPositions(x, rowIndex))
+            .filter { (xPos, yPos) => isInsideBounds(input, xPos, yPos) && !input(yPos).charAt(xPos).isDigit }
+            .filter { (xPos, yPos) => input(yPos).charAt(xPos).equals('*') }
+            .distinct
+            .foreach { (xPos, yPos) => gears((xPos, yPos)) += number.toInt }
         }
     }
 
