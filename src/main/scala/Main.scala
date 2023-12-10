@@ -12,15 +12,16 @@ def main(): Unit = {
   //  runDay(Day4)
   //  runDay(Day5)
   //  runDay(Day6)
-  runDay(Day7)
+//  runDay(Day7)
+  runDay(Day8)
 }
 
 def runDay(day: AdventOfCode): Unit = {
-  val part1 = day.part1(getLines(day.fileNamePart1))
+//  val part1 = day.part1(getLines(day.fileNamePart1))
   val part2 = day.part2(getLines(day.fileNamePart2))
 
   println(s"\n${day.getClass.getSimpleName.stripSuffix("$")}")
-  println(s"part 1: ${part1}")
+//  println(s"part 1: ${part1}")
   println(s"part 2: ${part2}\n")
 }
 
