@@ -14,35 +14,33 @@ object Day10 extends AdventOfCode {
   val fileNamePart2: String = fileNamePart1
 
   def part1(input: List[String]): String = {
-    val pipeMap = new mutable.HashMap[Position, Node]()
+    val pipeMap = new mutable.HashMap[Position, Char]()
     val (graph, startNode) = createGraph(input, pipeMap)
     (getPath(startNode, graph).size / 2).toString
   }
 
-  private def replaceUnusedPipes(input: List[String], visitedPath: Set[Position], pipeMap: mutable.HashMap[Position, Node]): Unit = {
+  private def replaceUnusedPipes(input: List[String], visitedPath: Set[Position], pipeMap: mutable.HashMap[Position, Char]): Unit = {
     for (y <- input.indices) {
       for (x <- 0 until input.head.length) {
         val pos = Position(x, y)
 
         if (!visitedPath.contains(pos)) {
-          val node = pipeMap(pos)
-          val newNode = Node('.', pos)
-          pipeMap(pos) = newNode
+          pipeMap(pos) = '.'
         }
       }
     }
   }
 
-  private def countInside(input: List[String], pipeMap: mutable.HashMap[Position, Node]): Int = {
+  private def countInside(input: List[String], pipeMap: mutable.HashMap[Position, Char]): Int = {
     var count = 0
     for (y <- input.indices) {
       var inside = false
       for (x <- 0 until input.head.length) {
-        val node = pipeMap(Position(x, y))
+        val pipe = pipeMap(Position(x, y))
 
-        if (Set('J', 'L', '|').contains(node.pipe)) {
+        if (Set('J', 'L', '|').contains(pipe)) {
           inside = !inside
-        } else if (Set('-', 'F', '7').contains(node.pipe)) {
+        } else if (Set('-', 'F', '7').contains(pipe)) {
 
         } else if (inside) {
           count += 1
@@ -53,7 +51,7 @@ object Day10 extends AdventOfCode {
   }
 
   def part2(input: List[String]): String = {
-    val pipeMap = new mutable.HashMap[Position, Node]()
+    val pipeMap = new mutable.HashMap[Position, Char]()
     val (graph, startNode) = createGraph(input, pipeMap)
     val visited = getPath(startNode, graph)
 
@@ -61,22 +59,21 @@ object Day10 extends AdventOfCode {
     countInside(input, pipeMap).toString
   }
 
-  private def createGraph(input: List[String], pipeMap: mutable.HashMap[Position, Node]): (mutable.HashMap[Node, mutable.HashSet[Node]], Node) = {
+  private def createGraph(input: List[String], pipeMap: mutable.HashMap[Position, Char]): (mutable.HashMap[Node, mutable.HashSet[Node]], Node) = {
     val graph = new mutable.HashMap[Node, mutable.HashSet[Node]]()
     var startNode: Node = null
 
     for ((line, y) <- input.zipWithIndex) {
       for ((c, x) <- line.zipWithIndex) {
         val pos = Position(x, y)
-        val newNode = if (c == 'S') {
-          val tmp = Node('-', pos)
-          startNode = tmp
-          tmp
+        val pipe = if (c == 'S') {
+          startNode = Node('-', pos)
+          '-'
         } else {
-          Node(c, pos)
+          c
         }
-        pipeMap(pos) = newNode
-        graph(newNode) = new mutable.HashSet[Node]()
+        pipeMap(pos) = pipe
+        graph(Node(pipe, pos)) = new mutable.HashSet[Node]()
       }
     }
     connectNodesInGraph(graph, pipeMap)
@@ -84,14 +81,14 @@ object Day10 extends AdventOfCode {
     (graph, startNode)
   }
 
-  private def connectNodesInGraph(graph: mutable.HashMap[Node, mutable.HashSet[Node]], pipeMap: mutable.HashMap[Position, Node]): Unit = {
+  private def connectNodesInGraph(graph: mutable.HashMap[Node, mutable.HashSet[Node]], pipeMap: mutable.HashMap[Position, Char]): Unit = {
     for ((currentNode, nodes) <- graph) {
       val neighbours = getNeighbours(pipeMap, currentNode)
 
       if (neighbours.isDefined) {
         val (posA, posB) = neighbours.get
-        val nodeA = pipeMap(posA)
-        val nodeB = pipeMap(posB)
+        val nodeA = Node(pipeMap(posA), posA)
+        val nodeB = Node(pipeMap(posB), posB)
 
         graph(nodeA) += currentNode
         graph(nodeB) += currentNode
@@ -119,8 +116,8 @@ object Day10 extends AdventOfCode {
     visited.toSet
   }
 
-  private def areValidNeighbours(node: Node, posA: Position, posB: Position, pipeMap: mutable.HashMap[Position, Node]): Boolean = {
-    isValid(node.pipe, pipeMap(posA).pipe, pipeMap(posB).pipe)
+  private def areValidNeighbours(node: Node, posA: Position, posB: Position, pipeMap: mutable.HashMap[Position, Char]): Boolean = {
+    isValid(node.pipe, pipeMap(posA), pipeMap(posB))
   }
 
   private def isValid(currentPipe: Char, pipeA: Char, pipeB: Char): Boolean = {
@@ -140,7 +137,7 @@ object Day10 extends AdventOfCode {
     false
   }
 
-  private def getNeighbours(pipeMap: mutable.HashMap[Position, Node], node: Node): Option[(Position, Position)] = {
+  private def getNeighbours(pipeMap: mutable.HashMap[Position, Char], node: Node): Option[(Position, Position)] = {
     val (posA, posB) = node.pipe match {
       case '|' => (Position(node.pos.x, node.pos.y - 1), Position(node.pos.x, node.pos.y + 1))
       case '-' => (Position(node.pos.x - 1, node.pos.y), Position(node.pos.x + 1, node.pos.y))
