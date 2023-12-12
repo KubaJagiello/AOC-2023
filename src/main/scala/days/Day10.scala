@@ -13,16 +13,12 @@ object Day10 extends AdventOfCode {
   val fileNamePart2: String = fileNamePart1
 
   def part1(input: List[String]): String = {
-    val pipeMap = new mutable.HashMap[Position, Char]()
-    val startPosition = findStartPosition(input)
-    val graph = createGraph(input, pipeMap, startPosition)
+    val (graph, pipeMap, startPosition) = createGraph(input)
     (getPath(startPosition, graph).size / 2).toString
   }
 
   def part2(input: List[String]): String = {
-    val pipeMap = new mutable.HashMap[Position, Char]()
-    val startPosition = findStartPosition(input)
-    val graph = createGraph(input, pipeMap, startPosition)
+    val (graph, pipeMap, startPosition) = createGraph(input)
     val visited = getPath(startPosition, graph)
 
     replaceUnusedPipes(input, visited, pipeMap)
@@ -61,9 +57,9 @@ object Day10 extends AdventOfCode {
     }.sum
   }
 
-  private def createGraph(input: List[String],
-                          pipeMap: mutable.HashMap[Position, Char],
-                          startPosition: Position): Map[Position, Set[Position]] = {
+  private def createGraph(input: List[String]): (Map[Position, Set[Position]], mutable.HashMap[Position, Char], Position) = {
+    val startPosition = findStartPosition(input)
+    val pipeMap = new mutable.HashMap[Position, Char]()
     val graph = input.zipWithIndex.flatMap { case (line, y) =>
       line.zipWithIndex.map { case (pipe, x) =>
         val pos = Position(x, y)
@@ -83,7 +79,7 @@ object Day10 extends AdventOfCode {
       }
     }
 
-    mutableGraph.toMap
+    (mutableGraph.toMap, pipeMap, startPosition)
   }
 
   private def getPath(startPosition: Position, graph: Map[Position, Set[Position]]): Set[Position] = {
