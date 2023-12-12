@@ -22,11 +22,10 @@ def main(): Unit = {
 }
 
 def runDay(day: AdventOfCode): Unit = {
-  val part1 = day.part1(getLines(day.fileNamePart1))
-  val part2 = day.part2(getLines(day.fileNamePart2))
-
   println(s"\n${day.getClass.getSimpleName.stripSuffix("$")}")
+  val part1 = day.part1(getLines(day.fileNamePart1))
   println(s"part 1: ${part1}")
+  val part2 = day.part2(getLines(day.fileNamePart2))
   println(s"part 2: ${part2}\n")
 }
 
