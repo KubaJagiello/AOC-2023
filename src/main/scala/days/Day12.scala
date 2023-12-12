@@ -33,14 +33,14 @@ object Day12 extends AdventOfCode {
       i <- dp.indices
       j <- dp(i).indices
       k <- dp(i)(j).indices
-    } dp(i)(j)(k) = -1
+    } dp(i)(j)(k) = -1337
     dp
   }
 
   private def noOfArrangements(row: String, group: Group): Long = {
     val dp = createMem(row.length, group.length)
 
-    def recurse(idx: Int, groupIdx: Int, currentGroupSize: Int): Long = {
+    def dfsArrangements(idx: Int, groupIdx: Int, currentGroupSize: Int): Long = {
       if (idx == row.length) {
         if ((groupIdx == group.length - 1 && group(groupIdx) == currentGroupSize) ||
           (groupIdx == group.length && currentGroupSize == 0)) {
@@ -49,31 +49,29 @@ object Day12 extends AdventOfCode {
         return 0
       }
 
-      if (dp(idx)(groupIdx)(currentGroupSize) != -1) {
+      if (dp(idx)(groupIdx)(currentGroupSize) != -1337) {
         return dp(idx)(groupIdx)(currentGroupSize)
       }
 
-      var sum: Long = 0
+      var arrangements = 0L
       val character = row.charAt(idx)
-
-      if (character == '?' || character == '#') {
-        sum += recurse(idx + 1, groupIdx, currentGroupSize + 1)
-      }
-      if (character == '?' || character == '.') {
-        if (currentGroupSize > 0 && groupIdx < group.length &&
-          group(groupIdx) == currentGroupSize) {
-          sum += recurse(idx + 1, groupIdx + 1, 0)
+      if (Set('?', '.').contains(character)) {
+        if (groupIdx < group.length && group(groupIdx) == currentGroupSize) {
+          arrangements += dfsArrangements(idx + 1, groupIdx + 1, 0)
         }
         if (currentGroupSize == 0) {
-          sum += recurse(idx + 1, groupIdx, 0)
+          arrangements += dfsArrangements(idx + 1, groupIdx, 0)
         }
       }
+      if (Set('?', '#').contains(character)) {
+        arrangements += dfsArrangements(idx + 1, groupIdx, currentGroupSize + 1)
+      }
 
-      dp(idx)(groupIdx)(currentGroupSize) = sum
-      sum
+      dp(idx)(groupIdx)(currentGroupSize) = arrangements
+      arrangements
     }
 
-    recurse(0, 0, 0)
+    dfsArrangements(0, 0, 0)
   }
 
   private def parseNumbers(line: String): Group = line.split(",").map(_.toInt).toList
