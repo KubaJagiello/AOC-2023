@@ -6,7 +6,6 @@ import scala.collection.mutable
 
 
 object Day10 extends AdventOfCode {
-  private case class Node(pipe: Char, pos: Position)
 
   private case class Position(x: Int, y: Int)
 
@@ -15,8 +14,25 @@ object Day10 extends AdventOfCode {
 
   def part1(input: List[String]): String = {
     val pipeMap = new mutable.HashMap[Position, Char]()
-    val (graph, startNode) = createGraph(input, pipeMap)
-    (getPath(startNode, graph).size / 2).toString
+    val startPosition = findStartPosition(input)
+    val graph = createGraph(input, pipeMap, startPosition)
+    (getPath(startPosition, graph).size / 2).toString
+  }
+
+  def part2(input: List[String]): String = {
+    val pipeMap = new mutable.HashMap[Position, Char]()
+    val startPosition = findStartPosition(input)
+    val graph = createGraph(input, pipeMap, startPosition)
+    val visited = getPath(startPosition, graph)
+
+    replaceUnusedPipes(input, visited, pipeMap)
+    countInside(input, pipeMap).toString
+  }
+
+  private def findStartPosition(input: List[String]): Position = {
+    input.zipWithIndex
+      .flatMap((line, y) => line.zipWithIndex.collect { case ('S', x) => Position(x, y) })
+      .head
   }
 
   private def replaceUnusedPipes(input: List[String], visitedPath: Set[Position], pipeMap: mutable.HashMap[Position, Char]): Unit = {
@@ -50,74 +66,52 @@ object Day10 extends AdventOfCode {
     count
   }
 
-  def part2(input: List[String]): String = {
-    val pipeMap = new mutable.HashMap[Position, Char]()
-    val (graph, startNode) = createGraph(input, pipeMap)
-    val visited = getPath(startNode, graph)
-
-    replaceUnusedPipes(input, visited, pipeMap)
-    countInside(input, pipeMap).toString
-  }
-
-  private def createGraph(input: List[String], pipeMap: mutable.HashMap[Position, Char]): (mutable.HashMap[Node, mutable.HashSet[Node]], Node) = {
-    val graph = new mutable.HashMap[Node, mutable.HashSet[Node]]()
-    var startNode: Node = null
-
+  private def createGraph(input: List[String],
+                          pipeMap: mutable.HashMap[Position, Char],
+                          startPosition: Position): mutable.HashMap[Position, mutable.HashSet[Position]] = {
+    val graph = new mutable.HashMap[Position, mutable.HashSet[Position]]()
     for ((line, y) <- input.zipWithIndex) {
       for ((c, x) <- line.zipWithIndex) {
         val pos = Position(x, y)
-        val pipe = if (c == 'S') {
-          startNode = Node('-', pos)
-          '-'
-        } else {
-          c
-        }
-        pipeMap(pos) = pipe
-        graph(Node(pipe, pos)) = new mutable.HashSet[Node]()
+        pipeMap(pos) = c
+        graph(pos) = new mutable.HashSet[Position]()
       }
     }
+    pipeMap(startPosition) = '-'
     connectNodesInGraph(graph, pipeMap)
-
-    (graph, startNode)
+    graph
   }
 
-  private def connectNodesInGraph(graph: mutable.HashMap[Node, mutable.HashSet[Node]], pipeMap: mutable.HashMap[Position, Char]): Unit = {
-    for ((currentNode, nodes) <- graph) {
-      val neighbours = getNeighbours(pipeMap, currentNode)
-
-      if (neighbours.isDefined) {
-        val (posA, posB) = neighbours.get
-        val nodeA = Node(pipeMap(posA), posA)
-        val nodeB = Node(pipeMap(posB), posB)
-
-        graph(nodeA) += currentNode
-        graph(nodeB) += currentNode
-
-        graph(currentNode) += nodeA
-        graph(currentNode) += nodeB
+  private def connectNodesInGraph(graph: mutable.HashMap[Position, mutable.HashSet[Position]], pipeMap: mutable.HashMap[Position, Char]): Unit = {
+    graph.keys.foreach { currentPos =>
+      getNeighbours(pipeMap, currentPos).foreach { case (posA, posB) =>
+        graph(posA) += currentPos
+        graph(posB) += currentPos
+        graph(currentPos) += posA
+        graph(currentPos) += posB
       }
     }
   }
 
-  private def getPath(startNode: Node, graph: mutable.HashMap[Node, mutable.HashSet[Node]]): Set[Position] = {
-    val queue = mutable.Queue[(Node, Int)]((startNode, 0))
+  private def getPath(startPosition: Position, graph: mutable.HashMap[Position, mutable.HashSet[Position]]): Set[Position] = {
+    val queue = mutable.Queue[(Position, Int)]((startPosition, 0))
     val visited = mutable.HashSet[Position]()
 
     while (queue.nonEmpty) {
-      val (node, steps) = queue.dequeue()
-      visited += node.pos
+      val (pos, steps) = queue.dequeue()
+      visited += pos
 
-      graph(node).foreach { nextNode =>
-        if (!visited.contains(nextNode.pos)) {
-          queue.enqueue((nextNode, steps + 1))
+      graph(pos).foreach { nextPos =>
+        if (!visited.contains(nextPos)) {
+          queue.enqueue((nextPos, steps + 1))
         }
       }
     }
     visited.toSet
   }
 
-  private def areValidNeighbours(node: Node, posA: Position, posB: Position, pipeMap: mutable.HashMap[Position, Char]): Boolean = {
-    isValid(node.pipe, pipeMap(posA), pipeMap(posB))
+  private def areValidNeighbours(currentPos: Position, posA: Position, posB: Position, pipeMap: mutable.HashMap[Position, Char]): Boolean = {
+    isValid(pipeMap(currentPos), pipeMap(posA), pipeMap(posB))
   }
 
   private def isValid(currentPipe: Char, pipeA: Char, pipeB: Char): Boolean = {
@@ -137,18 +131,18 @@ object Day10 extends AdventOfCode {
     false
   }
 
-  private def getNeighbours(pipeMap: mutable.HashMap[Position, Char], node: Node): Option[(Position, Position)] = {
-    val (posA, posB) = node.pipe match {
-      case '|' => (Position(node.pos.x, node.pos.y - 1), Position(node.pos.x, node.pos.y + 1))
-      case '-' => (Position(node.pos.x - 1, node.pos.y), Position(node.pos.x + 1, node.pos.y))
-      case 'L' => (Position(node.pos.x, node.pos.y - 1), Position(node.pos.x + 1, node.pos.y))
-      case 'J' => (Position(node.pos.x, node.pos.y - 1), Position(node.pos.x - 1, node.pos.y))
-      case 'F' => (Position(node.pos.x, node.pos.y + 1), Position(node.pos.x + 1, node.pos.y))
-      case '7' => (Position(node.pos.x, node.pos.y + 1), Position(node.pos.x - 1, node.pos.y))
+  private def getNeighbours(pipeMap: mutable.HashMap[Position, Char], currentPos: Position): Option[(Position, Position)] = {
+    val (posA, posB) = pipeMap(currentPos) match {
+      case '|' => (Position(currentPos.x, currentPos.y - 1), Position(currentPos.x, currentPos.y + 1))
+      case '-' => (Position(currentPos.x - 1, currentPos.y), Position(currentPos.x + 1, currentPos.y))
+      case 'L' => (Position(currentPos.x, currentPos.y - 1), Position(currentPos.x + 1, currentPos.y))
+      case 'J' => (Position(currentPos.x, currentPos.y - 1), Position(currentPos.x - 1, currentPos.y))
+      case 'F' => (Position(currentPos.x, currentPos.y + 1), Position(currentPos.x + 1, currentPos.y))
+      case '7' => (Position(currentPos.x, currentPos.y + 1), Position(currentPos.x - 1, currentPos.y))
       case _ => (Position(-1337, -1337), Position(-1337, -1337))
     }
 
-    if (pipeMap.contains(posA) && pipeMap.contains(posB) && areValidNeighbours(node, posA, posB, pipeMap)) {
+    if (pipeMap.contains(posA) && pipeMap.contains(posB) && areValidNeighbours(currentPos, posA, posB, pipeMap)) {
       Some(posA, posB)
     } else {
       None
