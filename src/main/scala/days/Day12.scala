@@ -1,14 +1,15 @@
 package se.jakub
 package days
 
+import scala.collection.mutable
 import scala.collection.parallel.CollectionConverters.*
 
 object Day12 extends AdventOfCode {
   val fileNamePart1: String = "day12_part1.txt"
   val fileNamePart2: String = fileNamePart1
 
-  type Group = List[Int]
-  type DP = Array[Array[Array[Long]]]
+  private case class State(idx: Int, groupIdx: Int, currentGroupSize: Int)
+
 
   def part1(input: List[String]): String = {
     input.par
@@ -27,30 +28,21 @@ object Day12 extends AdventOfCode {
       }.sum.toString
   }
 
-  private def createMem(rowLength: Int, groupLength: Int): DP = {
-    val dp = Array.ofDim[Long](rowLength + 1, groupLength + 1, rowLength + 1)
-    for {
-      i <- dp.indices
-      j <- dp(i).indices
-      k <- dp(i)(j).indices
-    } dp(i)(j)(k) = -1337
-    dp
-  }
-
-  private def noOfArrangements(row: String, group: Group): Long = {
-    val dp = createMem(row.length, group.length)
+  private def noOfArrangements(row: String, group: List[Int]): Long = {
+    val cache = new mutable.HashMap[State, Long]()
 
     def dfsArrangements(idx: Int, groupIdx: Int, currentGroupSize: Int): Long = {
+      val state = State(idx, groupIdx, currentGroupSize)
+      if (cache.get(state).exists(_ != 1337)) {
+        return cache(state)
+      }
+
       if (idx == row.length) {
         if ((groupIdx == group.length - 1 && group(groupIdx) == currentGroupSize) ||
           (groupIdx == group.length && currentGroupSize == 0)) {
           return 1
         }
         return 0
-      }
-
-      if (dp(idx)(groupIdx)(currentGroupSize) != -1337) {
-        return dp(idx)(groupIdx)(currentGroupSize)
       }
 
       var arrangements = 0L
@@ -67,12 +59,12 @@ object Day12 extends AdventOfCode {
         arrangements += dfsArrangements(idx + 1, groupIdx, currentGroupSize + 1)
       }
 
-      dp(idx)(groupIdx)(currentGroupSize) = arrangements
+      cache(state) = arrangements
       arrangements
     }
 
     dfsArrangements(0, 0, 0)
   }
 
-  private def parseNumbers(line: String): Group = line.split(",").map(_.toInt).toList
+  private def parseNumbers(line: String): List[Int] = line.split(",").map(_.toInt).toList
 }
