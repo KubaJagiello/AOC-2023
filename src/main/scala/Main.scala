@@ -11,7 +11,7 @@ def main(): Unit = {
   //  runDay(Day2)
   //  runDay(Day3)
   //  runDay(Day4)
-  //  runDay(Day5)
+  //      runDay(Day5)
   //  runDay(Day6)
   //  runDay(Day7)
   //  runDay(Day8)
@@ -24,10 +24,18 @@ def main(): Unit = {
 
 def runDay(day: AdventOfCode): Unit = {
   println(s"\n${day.getClass.getSimpleName.stripSuffix("$")}")
-  val part1 = day.part1(getLines(day.fileNamePart1))
-  println(s"part 1: ${part1}")
-  val part2 = day.part2(getLines(day.fileNamePart2))
-  println(s"part 2: ${part2}\n")
+
+  printPart("part 1", () => day.part1(getLines(day.fileNamePart1)))
+  printPart("part 2", () => day.part2(getLines(day.fileNamePart2)))
+}
+
+def printPart(partName: String, partFunction: () => String): Unit = {
+  val startTime = System.nanoTime()
+  val answer = partFunction()
+  val endTime = System.nanoTime()
+  val timeTaken = ((endTime - startTime) / 1e6d).round
+
+  println(s"$partName: $answer ($timeTaken ms)")
 }
 
 def getLines(fileName: String): List[String] = {

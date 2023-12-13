@@ -7,10 +7,13 @@ import scala.collection.mutable
 
 object Day10 extends AdventOfCode {
 
+  private type PipeMap = mutable.HashMap[Position, Char]
+
   private case class Position(x: Int, y: Int)
 
   val fileNamePart1: String = "day10_part1.txt"
   val fileNamePart2: String = fileNamePart1
+
 
   def part1(input: List[String]): String = {
     val (graph, pipeMap, startPosition) = createGraph(input)
@@ -31,7 +34,7 @@ object Day10 extends AdventOfCode {
       .head
   }
 
-  private def replaceUnusedPipes(input: List[String], visitedPath: Set[Position], pipeMap: mutable.HashMap[Position, Char]): Unit = {
+  private def replaceUnusedPipes(input: List[String], visitedPath: Set[Position], pipeMap: PipeMap): Unit = {
     for (y <- input.indices) {
       for (x <- 0 until input.head.length) {
         val pos = Position(x, y)
@@ -43,7 +46,7 @@ object Day10 extends AdventOfCode {
     }
   }
 
-  private def countInside(input: List[String], pipeMap: mutable.HashMap[Position, Char]): Int = {
+  private def countInside(input: List[String], pipeMap: PipeMap): Int = {
     input.indices.map { y =>
       val (count, _) = input.head.indices.foldLeft((0, false)) { case ((innerCount, inside), x) =>
         pipeMap(Position(x, y)) match {
@@ -57,7 +60,7 @@ object Day10 extends AdventOfCode {
     }.sum
   }
 
-  private def createGraph(input: List[String]): (Map[Position, Set[Position]], mutable.HashMap[Position, Char], Position) = {
+  private def createGraph(input: List[String]): (Map[Position, Set[Position]], PipeMap, Position) = {
     val startPosition = findStartPosition(input)
     val pipeMap = new mutable.HashMap[Position, Char]()
     val graph = input.zipWithIndex.flatMap { case (line, y) =>
@@ -115,7 +118,7 @@ object Day10 extends AdventOfCode {
     }
   }
 
-  private def getNeighbours(pipeMap: mutable.HashMap[Position, Char], currentPos: Position): Option[(Position, Position)] = {
+  private def getNeighbours(pipeMap: PipeMap, currentPos: Position): Option[(Position, Position)] = {
     def adjacentPosition(direction: Char): Option[Position] = direction match {
       case 'U' => Some(Position(currentPos.x, currentPos.y - 1))
       case 'D' => Some(Position(currentPos.x, currentPos.y + 1))
