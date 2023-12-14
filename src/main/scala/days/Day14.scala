@@ -3,7 +3,6 @@ package days
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.util.control.Breaks.*
 
 object Day14 extends AdventOfCode {
   private case class Direction(dx: Int, dy: Int)
@@ -12,7 +11,6 @@ object Day14 extends AdventOfCode {
   val fileNamePart2: String = fileNamePart1
   private type Grid = List[Array[Char]]
   private val ROUND_ROCK = 'O'
-  private val CUBE_ROCK = '#'
   private val EMPTY = '.'
 
   object Direction extends Enumeration {
