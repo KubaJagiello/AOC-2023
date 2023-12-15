@@ -8,9 +8,7 @@ object Day15 extends AdventOfCode {
   val fileNamePart1: String = "day15_part1.txt"
   val fileNamePart2: String = fileNamePart1
 
-  def part1(input: List[String]): String = {
-    input.head.split(",").map(hash).sum.toString
-  }
+  def part1(input: List[String]): String = input.head.split(",").map(hash).sum.toString
 
   def part2(input: List[String]): String = {
     val boxes = List.fill(256)(ListBuffer[String]())
