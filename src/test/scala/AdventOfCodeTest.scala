@@ -23,7 +23,8 @@ class AdventOfCodeTest extends AnyFunSuite {
     //    (Day12, "7017", "527570479489"),
     //    (Day13, "34993", "29341"),
     //    (Day14, "108935", "100876"),
-    (Day15, "504036", "295719"),
+    //    (Day15, "504036", "295719"),
+    (Day16, "7517", "7741"),
   )
 
   forAll(testCases) { (day, part1Result, part2Result) =>
