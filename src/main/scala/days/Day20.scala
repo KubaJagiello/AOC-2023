@@ -2,6 +2,7 @@ package se.jakub
 package days
 
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.HashMap
 
@@ -24,12 +25,10 @@ object Day20 extends AdventOfCode {
       addNode(nodeB)
     }
 
-    def getNeighbours(id: String): List[Node] = {
-      adjacencyList(id)
-    }
+    def getNeighbours(id: String): List[Node] = adjacencyList(id)
 
     def getNode(id: String): Node = {
-      if(!nodeMap.contains(id)) {
+      if (!nodeMap.contains(id)) {
         addNode(Untyped(id))
       }
       nodeMap(id)
@@ -46,25 +45,23 @@ object Day20 extends AdventOfCode {
 
   private case class Untyped(id: String) extends Node
 
-  private case class Conjunction(id: String, inputsMemory: mutable.HashMap[String, Pulse] = mutable.HashMap()) extends Node {
-    def addInputToMemory(node: Node, pulse: Pulse): Unit = {
+  private case class Conjunction(id: String, inputsMemory: mutable.HashMap[String, Int] = mutable.HashMap()) extends Node {
+    def addInputToMemory(node: Node, pulse: Int): Unit = {
       inputsMemory(node.id) = pulse
     }
 
-    def onlyHighPulses(): Boolean = inputsMemory.forall(_._2.high)
+    def onlyHighPulses(): Boolean = inputsMemory.forall(_._2 == HIGH)
   }
-
-  private case class Pulse(high: Boolean)
 
   private val LOW = 0
   private val HIGH = 1
 
   def part1(input: List[String]): String = {
-    val graph = parseInput(input)
+    val graph = getGraph(input)
     val queue = mutable.Queue[(Node, Node, Int)]()
     val answer = Array(0, 0)
 
-    for( _ <- (0 until 1000)) {
+    for (_ <- 0 until 1000) {
       val startNode = graph.getNode("broadcaster")
       queue.enqueue((startNode, startNode, LOW))
 
@@ -73,37 +70,75 @@ object Day20 extends AdventOfCode {
         answer(power) += 1
 
         currentNode match {
-          case f: FlipFlop => {
+          case f: FlipFlop =>
             if (power == LOW) {
               for (neighbour <- graph.getNeighbours(f.id)) {
                 queue.enqueue((neighbour, currentNode, if (f.on) LOW else HIGH))
               }
               f.on = !f.on
             }
-          }
-          case c: Conjunction => {
-            c.addInputToMemory(fromNode, if (power == LOW) Pulse(false) else Pulse(true))
+          case c: Conjunction =>
+            c.addInputToMemory(fromNode, if (power == LOW) LOW else HIGH)
 
             for (neighbour <- graph.getNeighbours(c.id)) {
               queue.enqueue((neighbour, currentNode, if (c.onlyHighPulses()) LOW else HIGH))
             }
-          }
-          case b: Broadcaster => {
+          case b: Broadcaster =>
             for (neighbour <- graph.getNeighbours(b.id)) {
               queue.enqueue((neighbour, currentNode, power))
             }
-          }
           case _ =>
         }
       }
-
     }
 
-    println(s"${answer(0)} ${answer(1)}")
     (answer(0) * answer(1)).toString
   }
 
-  private def parseInput(lines: List[String]): Graph = {
+  def part2(input: List[String]): String = {
+    val graph = getGraph(input)
+    val queue = mutable.Queue[(Node, Node, Int)]()
+    val partTwoAnswer = mutable.HashMap("qs" -> -1, "sv" -> -1, "pg" -> -1, "sp" -> -1)
+
+    for (y <- 0 until 10000) {
+      val startNode = graph.getNode("broadcaster")
+      queue.enqueue((startNode, startNode, LOW))
+
+      while (queue.nonEmpty) {
+        val (currentNode, fromNode, power) = queue.dequeue()
+
+        currentNode match {
+          case f: FlipFlop =>
+            if (power == LOW) {
+              for (neighbour <- graph.getNeighbours(f.id)) {
+                queue.enqueue((neighbour, currentNode, if (f.on) LOW else HIGH))
+              }
+              f.on = !f.on
+            }
+          case c: Conjunction =>
+            c.addInputToMemory(fromNode, if (power == LOW) LOW else HIGH)
+
+            for (neighbour <- graph.getNeighbours(c.id)) {
+              if (!c.onlyHighPulses() && partTwoAnswer.contains(c.id)) {
+                if (partTwoAnswer(c.id) == -1) {
+                  partTwoAnswer(c.id) = y + 1
+                }
+              }
+              queue.enqueue((neighbour, currentNode, if (c.onlyHighPulses()) LOW else HIGH))
+            }
+          case b: Broadcaster =>
+            for (neighbour <- graph.getNeighbours(b.id)) {
+              queue.enqueue((neighbour, currentNode, power))
+            }
+          case _ =>
+        }
+      }
+    }
+
+    lcmOfList(partTwoAnswer.values.map(_.toLong).toList).toString
+  }
+
+  private def getGraph(lines: List[String]): Graph = {
     val graph = new Graph()
 
     for (line <- lines) {
@@ -117,7 +152,7 @@ object Day20 extends AdventOfCode {
         val rightNode = graph.getNode(n)
 
         rightNode match {
-          case conjunction: Conjunction => conjunction.addInputToMemory(leftNode, Pulse(false))
+          case conjunction: Conjunction => conjunction.addInputToMemory(leftNode, LOW)
           case _ =>
         }
         graph.addEdge(leftNode, rightNode)
@@ -127,25 +162,18 @@ object Day20 extends AdventOfCode {
     graph
   }
 
-  private def leftStrip(s: String): String = {
-    if (s.contains("%") || s.contains("&")) {
-      s.substring(1)
-    } else {
-      s
-    }
+  private def leftStrip(s: String): String = if (s.exists(ch => ch == '%' || ch == '&')) s.drop(1) else s
+
+  private def getNode(s: String): Node = s match {
+    case str if str.contains("%") => FlipFlop(leftStrip(str))
+    case str if str.contains("&") => Conjunction(leftStrip(str))
+    case str => Broadcaster(leftStrip(str))
   }
 
-  private def getNode(s: String): Node = {
-    if (s.contains("%")) {
-      FlipFlop(leftStrip(s))
-    } else if (s.contains("&")) {
-      Conjunction(leftStrip(s))
-    } else {
-      Broadcaster(leftStrip(s))
-    }
-  }
+  @tailrec
+  private def gcd(a: Long, b: Long): Long = if (b == 0) a else gcd(b, a % b)
 
-  def part2(input: List[String]): String = {
-    ""
-  }
+  private def lcm(a: Long, b: Long): Long = (a * b).abs / gcd(a, b)
+
+  private def lcmOfList(numbers: List[Long]): Long = numbers.foldLeft(1L)(lcm)
 }
