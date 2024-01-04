@@ -24,8 +24,10 @@ def main(): Unit = {
   //  runDay(Day15)
   //  runDay(Day16)
   //  runDay(Day17)
-  // runDay(Day18)
-  runDay(Day20)
+  //  runDay(Day18)
+  //  runDay(Day19)
+  //  runDay(Day20)
+  runDay(Day21)
 }
 
 def runDay(day: AdventOfCode): Unit = {
