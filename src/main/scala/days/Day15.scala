@@ -30,9 +30,11 @@ object Day15 extends AdventOfCode {
       }
     }
 
-    boxes.zipWithIndex.foldLeft(0L) { case (acc, (box, i)) =>
-      box.zipWithIndex.foldLeft(acc) { case (innerAcc, (elem, j)) => innerAcc + (i + 1) * (j + 1) * mem((i, elem)) }
-    }.toString
+    boxes.zipWithIndex
+      .foldLeft(0L) { case (acc, (box, i)) =>
+        box.zipWithIndex.foldLeft(acc) { case (innerAcc, (elem, j)) => innerAcc + (i + 1) * (j + 1) * mem((i, elem)) }
+      }
+      .toString
   }
 
   private def getLens(s: String): (String, Int) = {

@@ -8,31 +8,36 @@ object Day9 extends AdventOfCode {
   val fileNamePart2: String = fileNamePart1
 
   def part1(input: List[String]): String = {
-    input.foldLeft(0L) { (acc, line) =>
-      val diffs = getHistoryOfDifferences(line.split(" ").map(_.toLong).to(ListBuffer))
+    input
+      .foldLeft(0L) { (acc, line) =>
+        val diffs = getHistoryOfDifferences(line.split(" ").map(_.toLong).to(ListBuffer))
 
-      for (i <- 1 until diffs.length) {
-        diffs(i) += (diffs(i).last + diffs(i - 1).last)
+        for (i <- 1 until diffs.length) {
+          diffs(i) += (diffs(i).last + diffs(i - 1).last)
+        }
+
+        acc + diffs.last.last
       }
-
-      acc + diffs.last.last
-    }.toString
+      .toString
   }
 
   def part2(input: List[String]): String = {
-    input.foldLeft(0L) { (acc, line) =>
-      val diffs = getHistoryOfDifferences(line.split(" ").map(_.toLong).to(ListBuffer).reverse)
+    input
+      .foldLeft(0L) { (acc, line) =>
+        val diffs = getHistoryOfDifferences(line.split(" ").map(_.toLong).to(ListBuffer).reverse)
 
-      for (i <- 1 until diffs.length) {
-        diffs(i) += (diffs(i).last + diffs(i - 1).last)
+        for (i <- 1 until diffs.length) {
+          diffs(i) += (diffs(i).last + diffs(i - 1).last)
+        }
+
+        acc + diffs.last.last
       }
-
-      acc + diffs.last.last
-    }.toString
+      .toString
   }
 
   private def getHistoryOfDifferences(numbers: ListBuffer[Long]) =
-    Iterator.iterate(numbers)(n => getDifferences(n))
+    Iterator
+      .iterate(numbers)(n => getDifferences(n))
       .takeWhile(diffs => !onlyZeros(diffs))
       .toList
       .reverse

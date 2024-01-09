@@ -5,8 +5,7 @@ import java.util
 import scala.Long.MaxValue
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.collection.parallel.CollectionConverters._
-
+import scala.collection.parallel.CollectionConverters.*
 
 case class RangeMap(destinationStart: Long, destinationEnd: Long, sourceStart: Long, sourceEnd: Long)
 
@@ -35,9 +34,13 @@ object Day5 extends AdventOfCode {
             if (range.sourceStart <= seedTuple.currentValue && range.sourceEnd >= seedTuple.currentValue) {
               val diff = Math.abs(range.sourceStart - range.destinationStart)
               if (range.sourceStart > range.destinationStart) {
-                linkedList.addFirst(SeedTuple(seedTuple.currentValue - diff, seedTuple.rangeIndex + 1, seedTuple.startingValue))
+                linkedList.addFirst(
+                  SeedTuple(seedTuple.currentValue - diff, seedTuple.rangeIndex + 1, seedTuple.startingValue)
+                )
               } else {
-                linkedList.addFirst(SeedTuple(seedTuple.currentValue + diff, seedTuple.rangeIndex + 1, seedTuple.startingValue))
+                linkedList.addFirst(
+                  SeedTuple(seedTuple.currentValue + diff, seedTuple.rangeIndex + 1, seedTuple.startingValue)
+                )
               }
               found = true
             }
@@ -81,16 +84,24 @@ object Day5 extends AdventOfCode {
   }
 
   private def createSeedValues(input: List[String]) = {
-    numberPattern.findAllMatchIn(input.head).map(x => x.toString().toLong)
+    numberPattern
+      .findAllMatchIn(input.head)
+      .map(x => x.toString().toLong)
       .toList
       .grouped(2)
-      .collect {
-        case List(a, b) => (a, a + b)
+      .collect { case List(a, b) =>
+        (a, a + b)
       }
       .toList
   }
 
-  private def solve(ranges: List[ListBuffer[RangeMap]], lowestLocation: mutable.HashMap[(Long, Long), Long], locationNumber: Long, validSeed: (Long, Long), currentLowestFound: Long): Boolean = {
+  private def solve(
+      ranges: List[ListBuffer[RangeMap]],
+      lowestLocation: mutable.HashMap[(Long, Long), Long],
+      locationNumber: Long,
+      validSeed: (Long, Long),
+      currentLowestFound: Long
+  ): Boolean = {
     val linkedList = new util.LinkedList[SeedTuple]()
     var answer = false
 
@@ -105,9 +116,13 @@ object Day5 extends AdventOfCode {
             val diff = Math.abs(range.destinationStart - range.sourceStart)
 
             if (range.sourceStart < range.destinationStart) {
-              linkedList.addFirst(SeedTuple(seedTuple.currentValue - diff, seedTuple.rangeIndex + 1, seedTuple.startingValue))
+              linkedList.addFirst(
+                SeedTuple(seedTuple.currentValue - diff, seedTuple.rangeIndex + 1, seedTuple.startingValue)
+              )
             } else {
-              linkedList.addFirst(SeedTuple(seedTuple.currentValue + diff, seedTuple.rangeIndex + 1, seedTuple.startingValue))
+              linkedList.addFirst(
+                SeedTuple(seedTuple.currentValue + diff, seedTuple.rangeIndex + 1, seedTuple.startingValue)
+              )
             }
             found = true
           }

@@ -13,8 +13,7 @@ object Day8 extends AdventOfCode {
   def part1(input: List[String]): String = {
     val isEqualEndNode: String => Boolean = _.equals("ZZZ")
 
-    getNumberOfSteps("AAA", isEqualEndNode, getGraph(getNodes(input)), input.head)
-      .toString
+    getNumberOfSteps("AAA", isEqualEndNode, getGraph(getNodes(input)), input.head).toString
   }
 
   def part2(input: List[String]): String = {
@@ -30,7 +29,13 @@ object Day8 extends AdventOfCode {
   }
 
   @tailrec
-  private def getNumberOfSteps(startNodeName: String, predicate: String => Boolean, graph: Map[String, Node], path: String, idx: Int = 0): Int = {
+  private def getNumberOfSteps(
+      startNodeName: String,
+      predicate: String => Boolean,
+      graph: Map[String, Node],
+      path: String,
+      idx: Int = 0
+  ): Int = {
     val currentNodeName = path.charAt(idx % path.length) match {
       case 'R' => graph(startNodeName).right
       case 'L' => graph(startNodeName).left

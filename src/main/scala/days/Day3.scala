@@ -14,7 +14,8 @@ object Day3 extends AdventOfCode {
     var answer = 0
 
     for ((line, rowIndex) <- input.zipWithIndex) {
-      numberPattern.findAllMatchIn(line)
+      numberPattern
+        .findAllMatchIn(line)
         .map(m => (line.substring(m.start, m.end), m.start, m.end))
         .toList
         .foreach { case (number, startIdx, endIdx) =>
@@ -38,7 +39,8 @@ object Day3 extends AdventOfCode {
     }.toMap
 
     for ((line, rowIndex) <- input.zipWithIndex) {
-      numberPattern.findAllMatchIn(line)
+      numberPattern
+        .findAllMatchIn(line)
         .map(m => (line.substring(m.start, m.end), m.start, m.end))
         .foreach { (number, startIdx, endIdx) =>
           (startIdx until endIdx)

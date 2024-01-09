@@ -12,10 +12,13 @@ object Day6 extends AdventOfCode {
     val recordTimes = extractNumbers(input.head)
     val recordDistances = extractNumbers(input.last)
 
-    recordTimes.zip(recordDistances).map {
-      (totalTime, recordDistance) =>
+    recordTimes
+      .zip(recordDistances)
+      .map { (totalTime, recordDistance) =>
         (0L to totalTime).count { t => totalDistance(totalTime, t) > recordDistance }
-    }.product.toString
+      }
+      .product
+      .toString
   }
 
   def part2(input: List[String]): String = {

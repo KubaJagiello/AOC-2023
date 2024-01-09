@@ -49,5 +49,6 @@ object Day21 extends AdventOfCode {
     memory.toMap
   }
 
-  private def valid(x: Int, y: Int, input: List[String]): Boolean = x >= 0 && y >= 0 && x < input.head.length && y < input.length
+  private def valid(x: Int, y: Int, input: List[String]): Boolean =
+    x >= 0 && y >= 0 && x < input.head.length && y < input.length
 }

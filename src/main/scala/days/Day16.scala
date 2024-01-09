@@ -1,7 +1,6 @@
 package se.jakub
 package days
 
-
 import scala.collection.mutable
 
 object Day16 extends AdventOfCode {
@@ -11,23 +10,6 @@ object Day16 extends AdventOfCode {
   val fileNamePart2: String = fileNamePart1
 
   def part1(input: List[String]): String = numberOfEnergizedTiles(input.map(_.toList), (-1, 0, 1, 0)).toString
-
-  def part2(input: List[String]): String = {
-    val grid = input.map(_.toList)
-    var maxValue = 0
-
-    for (y <- grid.indices) {
-      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (-1, y, 1, 0)))
-      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (grid.head.length, y, -1, 0)))
-    }
-
-    for (x <- grid.head.indices) {
-      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (x, -1, 0, 1)))
-      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (x, grid.length, 0, -1)))
-    }
-
-    maxValue.toString
-  }
 
   private def numberOfEnergizedTiles(grid: Grid, beam: Beam): Int = {
     val queue = mutable.Queue[Beam](beam)
@@ -64,6 +46,23 @@ object Day16 extends AdventOfCode {
     grid(y)(x) == '.' || (dx != 0 && grid(y)(x) == '-') || (dy != 0 && grid(y)(x) == '|')
   }
 
-  private def isInsideGrid(grid: Grid, x: Int, y: Int): Boolean = x >= 0 && y >= 0 && x < grid.head.length && y < grid.size
-}
+  private def isInsideGrid(grid: Grid, x: Int, y: Int): Boolean =
+    x >= 0 && y >= 0 && x < grid.head.length && y < grid.size
 
+  def part2(input: List[String]): String = {
+    val grid = input.map(_.toList)
+    var maxValue = 0
+
+    for (y <- grid.indices) {
+      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (-1, y, 1, 0)))
+      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (grid.head.length, y, -1, 0)))
+    }
+
+    for (x <- grid.head.indices) {
+      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (x, -1, 0, 1)))
+      maxValue = Math.max(maxValue, numberOfEnergizedTiles(grid, (x, grid.length, 0, -1)))
+    }
+
+    maxValue.toString
+  }
+}

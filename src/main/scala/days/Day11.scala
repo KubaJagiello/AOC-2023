@@ -2,23 +2,20 @@ package se.jakub
 package days
 
 object Day11 extends AdventOfCode {
+  private type Grid = List[List[Char]]
   val fileNamePart1: String = "day11_part1.txt"
   val fileNamePart2: String = fileNamePart1
 
-  private case class Position(x: Int, y: Int)
-
-  private type Grid = List[List[Char]]
-
   def part1(input: List[String]): String = sumDistancesBetweenGalaxies(input, 2L).toString
-
-  def part2(input: List[String]): String = sumDistancesBetweenGalaxies(input, 1000000L).toString
 
   private def sumDistancesBetweenGalaxies(input: List[String], emptyFactor: Long): Long = {
     val grid = input.map(_.toList)
     val (emptyRows, emptyColumns) = getListOfEmptyRowsAndColumns(grid)
 
     findAllPairs(getPositionsOfGalaxies(grid))
-      .map((a, b) => manhattanDist(a, b, emptyRowsIndices(emptyRows, a, b), emptyColumnsIndices(emptyColumns, a, b), emptyFactor))
+      .map((a, b) =>
+        manhattanDist(a, b, emptyRowsIndices(emptyRows, a, b), emptyColumnsIndices(emptyColumns, a, b), emptyFactor)
+      )
       .sum
   }
 
@@ -56,4 +53,8 @@ object Day11 extends AdventOfCode {
     val distance = (Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y)).toLong
     distance + (emptyRows * (factor - 1L)) + (emptyColumns * (factor - 1L))
   }
+
+  def part2(input: List[String]): String = sumDistancesBetweenGalaxies(input, 1000000L).toString
+
+  private case class Position(x: Int, y: Int)
 }

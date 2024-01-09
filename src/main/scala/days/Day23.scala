@@ -14,7 +14,7 @@ object Day23 extends AdventOfCode {
     '<' -> List((-1, 0)),
     '>' -> List((1, 0)),
     '^' -> List((0, -1)),
-    'v' -> List((0, 1)),
+    'v' -> List((0, 1))
   )
 
   def part1(input: List[String]): String = {
@@ -48,7 +48,7 @@ object Day23 extends AdventOfCode {
         val (newX, newY) = (x + dx, y + dy)
         if (graph.contains((newX, newY))) {
           val newC = input(newY)(newX)
-          
+
           if (newC == '.') {
             graph(x, y) += (newX, newY, 1)
             if (c != '.') {
@@ -93,7 +93,11 @@ object Day23 extends AdventOfCode {
     dfs(startX, startY, 0)
   }
 
-  private def removeUnnecessaryEdges(input: List[String], graph: Graph, attachedToSlope: mutable.HashSet[(Int, Int)]): Unit = {
+  private def removeUnnecessaryEdges(
+      input: List[String],
+      graph: Graph,
+      attachedToSlope: mutable.HashSet[(Int, Int)]
+  ): Unit = {
     var found = true
 
     while (found) {
@@ -107,7 +111,13 @@ object Day23 extends AdventOfCode {
     }
   }
 
-  private def shouldRemoveNode(input: List[String], x: Int, y: Int, attachedToSlope: mutable.HashSet[(Int, Int)], graph: Graph): Boolean = {
+  private def shouldRemoveNode(
+      input: List[String],
+      x: Int,
+      y: Int,
+      attachedToSlope: mutable.HashSet[(Int, Int)],
+      graph: Graph
+  ): Boolean = {
     input(y)(x) == '.' && graph((x, y)).size == 2 && !attachedToSlope.contains((x, y))
   }
 

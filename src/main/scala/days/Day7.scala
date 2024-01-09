@@ -5,7 +5,6 @@ object Day7 extends AdventOfCode {
   val fileNamePart1: String = "day7_part1.txt"
   val fileNamePart2: String = fileNamePart1
 
-
   def part1(input: List[String]): String = {
     input
       .map { line => line.split(" ") }
@@ -19,25 +18,27 @@ object Day7 extends AdventOfCode {
       .toString
   }
 
-  def part2(input: List[String]): String = {
-    input
-      .map { line => line.split(" ") }
-      .map { case Array(cards, bid) => ((cards, bid.toLong)) }
-      .sortWith(sortPart2)
-      .reverse.zipWithIndex
-      .foldLeft(0L) { case (acc, ((cards, bid), idx)) =>
-        acc + ((idx + 1).toLong * bid)
-      }
-      .toString
-  }
-
   private def sortPart1(a: (String, Long), b: (String, Long)): Boolean = {
     compareCards(
       a,
       b,
       List("A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2").zipWithIndex.toMap,
       cardsType(getCharacterCounts(a).values.toList),
-      cardsType(getCharacterCounts(b).values.toList))
+      cardsType(getCharacterCounts(b).values.toList)
+    )
+  }
+
+  def part2(input: List[String]): String = {
+    input
+      .map { line => line.split(" ") }
+      .map { case Array(cards, bid) => ((cards, bid.toLong)) }
+      .sortWith(sortPart2)
+      .reverse
+      .zipWithIndex
+      .foldLeft(0L) { case (acc, ((cards, bid), idx)) =>
+        acc + ((idx + 1).toLong * bid)
+      }
+      .toString
   }
 
   private def sortPart2(a: (String, Long), b: (String, Long)): Boolean = {
@@ -46,16 +47,19 @@ object Day7 extends AdventOfCode {
       b,
       List("A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2", "J").zipWithIndex.toMap,
       cardsType(getCardsValues(getCharacterCounts(a))),
-      cardsType(getCardsValues(getCharacterCounts(b))))
+      cardsType(getCardsValues(getCharacterCounts(b)))
+    )
   }
 
-  private def compareCards(a: (String, Long), b: (String, Long), cardsStrengths: Map[String, Int], aCardsTypeValue: Long, bCardsTypeValue: Long): Boolean = {
+  private def compareCards(
+      a: (String, Long),
+      b: (String, Long),
+      cardsStrengths: Map[String, Int],
+      aCardsTypeValue: Long,
+      bCardsTypeValue: Long
+  ): Boolean = {
     if (aCardsTypeValue != bCardsTypeValue) aCardsTypeValue > bCardsTypeValue
     else cardsStrength(a._1, b._1, cardsStrengths)
-  }
-
-  private def getCharacterCounts(a: (String, Long)) = {
-    a._1.groupBy(identity).view.mapValues(_.length).toMap
   }
 
   private def cardsStrength(a: String, b: String, cardsValues: Map[String, Int]): Boolean = {
@@ -68,6 +72,10 @@ object Day7 extends AdventOfCode {
     }
 
     false
+  }
+
+  private def getCharacterCounts(a: (String, Long)) = {
+    a._1.groupBy(identity).view.mapValues(_.length).toMap
   }
 
   private def cardsType(values: List[Int]): Long = {

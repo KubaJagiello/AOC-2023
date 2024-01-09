@@ -5,24 +5,11 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 object Day14 extends AdventOfCode {
-  private case class Direction(dx: Int, dy: Int)
-
+  private type Grid = List[Array[Char]]
   val fileNamePart1: String = "day14_part1.txt"
   val fileNamePart2: String = fileNamePart1
-  private type Grid = List[Array[Char]]
   private val ROUND_ROCK = 'O'
   private val EMPTY = '.'
-
-  object Direction extends Enumeration {
-    val North, East, South, West = Value
-
-    def getDeltas(direction: Direction.Value): (Int, Int) = direction match {
-      case North => (0, -1)
-      case East => (1, 0)
-      case South => (0, 1)
-      case West => (-1, 0)
-    }
-  }
 
   def part1(input: List[String]): String = {
     val grid = input.map(_.toArray)
@@ -61,7 +48,9 @@ object Day14 extends AdventOfCode {
   private def gridToString(grid: Grid): String = grid.foldLeft("")((acc, arr) => acc + arr.mkString)
 
   private def calculateAnswer(grid: Grid): Int = {
-    grid.zipWithIndex.foldLeft(0) { case (acc, (line, i)) => acc + (line.count(_.equals(ROUND_ROCK)) * (grid.length - i)) }
+    grid.zipWithIndex.foldLeft(0) { case (acc, (line, i)) =>
+      acc + (line.count(_.equals(ROUND_ROCK)) * (grid.length - i))
+    }
   }
 
   private def shift(grid: Grid, direction: Direction.Value): Unit = {
@@ -99,5 +88,18 @@ object Day14 extends AdventOfCode {
     }
 
     move(x, y)
+  }
+
+  private case class Direction(dx: Int, dy: Int)
+
+  object Direction extends Enumeration {
+    val North, East, South, West = Value
+
+    def getDeltas(direction: Direction.Value): (Int, Int) = direction match {
+      case North => (0, -1)
+      case East  => (1, 0)
+      case South => (0, 1)
+      case West  => (-1, 0)
+    }
   }
 }
